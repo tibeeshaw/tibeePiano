@@ -1,9 +1,15 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import Piano from './components/Piano';
 import ChordDisplay from './components/ChordDisplay';
 import { BookOpen } from 'lucide-react';
 
-const THEORY = {
+type TheoryType = {
+  [key: string]: {
+    [key: string]: string[];
+  };
+};
+
+const THEORY: TheoryType = {
   'Major Chords': {
     'C Major': ['C', 'E', 'G'],
     'G Major': ['G', 'B', 'D'],
@@ -57,7 +63,7 @@ function App() {
   const [selectedCategory, setSelectedCategory] = useState<string>('Major Chords');
   const [selectedItem, setSelectedItem] = useState<string>('C Major');
 
-  const categories = Object.keys(THEORY).filter(category => 
+  const categories = Object.keys(THEORY).filter(category =>
     activeTab === 'chords' ? category.includes('Chord') : category.includes('Scale')
   );
 
@@ -74,6 +80,9 @@ function App() {
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         <div className="grid gap-6 sm:gap-8">
+          <div>
+            Made with <a href="https://bolt.new/">bolt</a>
+          </div>
           <div className="bg-white rounded-lg shadow-md overflow-hidden">
             {/* Tabs */}
             <div className="border-b border-gray-200">
@@ -147,18 +156,19 @@ function App() {
                     {name.replace(' Scale', '')}
                   </button>
                 ))}
+                notes={THEORY[selectedCategory][selectedItem]}
               </div>
             </div>
+
+            <ChordDisplay
+              chordName={selectedItem}
+              notes={THEORY[selectedCategory as keyof typeof THEORY][selectedItem]}
+            />
+
+            <Piano
+              highlightedNotes={THEORY[selectedCategory as keyof typeof THEORY][selectedItem]}
+            />
           </div>
-
-          <ChordDisplay
-            chordName={selectedItem}
-            notes={THEORY[selectedCategory as keyof typeof THEORY][selectedItem]}
-          />
-
-          <Piano
-            highlightedNotes={THEORY[selectedCategory as keyof typeof THEORY][selectedItem]}
-          />
         </div>
       </main>
     </div>
