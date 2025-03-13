@@ -1,0 +1,17 @@
+{
+  "name": "Piano Theory Learner",
+  "short_name": "Piano Theory",
+  "description": "Learn piano chords and music theory interactively",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f9fafb",
+  "theme_color": "#6366f1",
+  "icons": [
+    {
+      "src": "https://api.iconify.design/lucide:music.svg?color=%236366f1",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
