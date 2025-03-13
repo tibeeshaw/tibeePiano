@@ -2,6 +2,7 @@ import { useState } from 'react';
 import Piano from './components/Piano';
 import ChordDisplay from './components/ChordDisplay';
 import { BookOpen } from 'lucide-react';
+import { convertNotes } from './utils/noteConversion';
 
 type TheoryType = {
   [key: string]: {
@@ -62,18 +63,37 @@ function App() {
   const [activeTab, setActiveTab] = useState<'chords' | 'scales'>('chords');
   const [selectedCategory, setSelectedCategory] = useState<string>('Major Chords');
   const [selectedItem, setSelectedItem] = useState<string>('C Major');
+  const [useFrenchNotation, setUseFrenchNotation] = useState(true);
 
   const categories = Object.keys(THEORY).filter(category =>
     activeTab === 'chords' ? category.includes('Chord') : category.includes('Scale')
   );
 
+  const currentNotes = THEORY[selectedCategory as keyof typeof THEORY][selectedItem];
+  // const displayedNotes = convertNotes(currentNotes, useFrenchNotation);
+
   return (
     <div className="min-h-screen bg-gray-50">
       <header className="bg-white shadow-sm sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
-          <div className="flex items-center gap-2">
-            <BookOpen className="w-6 h-6 sm:w-8 sm:h-8 text-indigo-600" />
-            <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Piano Theory Learner</h1>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <BookOpen className="w-6 h-6 sm:w-8 sm:h-8 text-indigo-600" />
+              <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Piano Theory Learner</h1>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-gray-600">Notation:</span>
+              <button
+                onClick={() => setUseFrenchNotation(!useFrenchNotation)}
+                className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
+                  useFrenchNotation
+                    ? 'bg-indigo-600 text-white'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                {useFrenchNotation ? 'Do Ré Mi' : 'A B C'}
+              </button>
+            </div>
           </div>
         </div>
       </header>
@@ -143,30 +163,38 @@ function App() {
                 ))}
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
-                {Object.keys(THEORY[selectedCategory as keyof typeof THEORY]).map((name) => (
-                  <button
-                    key={name}
-                    onClick={() => setSelectedItem(name)}
-                    className={`px-3 sm:px-4 py-2 rounded-lg font-medium transition-colors text-sm
-                      ${selectedItem === name
-                        ? 'bg-indigo-600 text-white'
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                      }`}
-                  >
-                    {name.replace(' Scale', '')}
-                  </button>
-                ))}
-                notes={THEORY[selectedCategory][selectedItem]}
+                {Object.keys(THEORY[selectedCategory as keyof typeof THEORY]).map((name) => {
+                  const baseName = name.replace(' Scale', '');
+                  const [rootNote, ...rest] = baseName.split(' ');
+                  const convertedName = useFrenchNotation 
+                    ? `${convertNotes([rootNote], true)[0]} ${rest.join(' ')}`
+                    : baseName;
+
+                  return (
+                    <button
+                      key={name}
+                      onClick={() => setSelectedItem(name)}
+                      className={`px-3 sm:px-4 py-2 rounded-lg font-medium transition-colors text-sm
+                        ${selectedItem === name
+                          ? 'bg-indigo-600 text-white'
+                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                        }`}
+                    >
+                      {convertedName}
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
             <ChordDisplay
               chordName={selectedItem}
-              notes={THEORY[selectedCategory as keyof typeof THEORY][selectedItem]}
+              notes={currentNotes}
+              useFrenchNotation={useFrenchNotation}
             />
 
             <Piano
-              highlightedNotes={THEORY[selectedCategory as keyof typeof THEORY][selectedItem]}
+              highlightedNotes={currentNotes}
             />
           </div>
         </div>
